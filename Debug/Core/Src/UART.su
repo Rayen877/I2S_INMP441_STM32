@@ -1,0 +1,7 @@
+../Core/Src/UART.c:4:6:usart_tx_rx_init	8	static
+../Core/Src/UART.c:28:6:set_uart_baudrate	24	static
+../Core/Src/UART.c:33:10:compute_uart_div	16	static
+../Core/Src/UART.c:36:6:uart_write	16	static
+../Core/Src/UART.c:40:6:uart_read	16	static
+../Core/Src/UART.c:46:6:uart_send_string	16	static
+../Core/Src/UART.c:53:6:uart_send_buffer	32	static
