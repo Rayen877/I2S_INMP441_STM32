@@ -1,3 +1,1 @@
-../Core/Src/main.c:44:6:I2S2_Init	2
-../Core/Src/main.c:76:9:I2S2_Read	2
-../Core/Src/main.c:82:5:main	1
+../Core/Src/main.c:4:5:main	5

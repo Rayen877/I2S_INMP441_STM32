@@ -1,7 +1,8 @@
 
 #ifndef I2S_H
 #define I2S_H
-
+#include <stdint.h>
+#include "stm32f4xx.h"
 #define AUDIO_BUFFER_SIZE 256
 
 extern int32_t i2s_rx_buffer[AUDIO_BUFFER_SIZE];
