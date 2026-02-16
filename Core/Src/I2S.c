@@ -24,6 +24,7 @@
 #define SPI_RxDMAEN       (1U << 0)
 #define I2S_ENABL       (1U << 10)
 #define DMA1_STREAM3_IRQn   13
+// mt3 l interrupt :
 #define NVIC_ISER0   (*(volatile uint32_t*)0xE000E100U)
 #define NVIC_ENABLE_IRQ(x)  (NVIC_ISER0 = (1U << (x)))
 
@@ -39,18 +40,12 @@ void i2s2_dma_init(void)
 	RCC->AHB1ENR |= CLK_GPIOB_EN ;
 	RCC->AHB1ENR |= CLK_GPIOC_EN;
 	//pb10
-/*	GPIOB->MODER |=  (2 << (10*2));
+	GPIOB->MODER |=  (2 << (10*2));
 	GPIOB->AFR[1] &= ~(0xF << ((10-8)*4));
-	GPIOB->AFR[1] |=  (5 << ((10-8)*4));*/
+	GPIOB->AFR[1] |=  (5 << ((10-8)*4));
 
 	// High speed
 	GPIOB->OSPEEDR |= (3 << (10*2));
-	//pb13
-	GPIOB->MODER &= ~(3 << (13 * 2));
-	GPIOB->MODER |=  (2 << (13 * 2));      // AF
-	GPIOB->AFR[1] &= ~(0xF << ((13 - 8) * 4));
-	GPIOB->AFR[1] |=  (5 << ((13 - 8) * 4)); // AF5
-	GPIOB->OSPEEDR |= (3 << (13 * 2));
 	//pb12
 	GPIOB->MODER &= ~(3 << (12*2));
 	GPIOB->MODER |=  (2 << (12*2));
@@ -59,6 +54,14 @@ void i2s2_dma_init(void)
 	GPIOB->AFR[1] |=  (5 << ((12-8)*4));
 
 	GPIOB->OSPEEDR |= (3 << (12*2));
+/*	//pb15
+	GPIOB->MODER &= ~(3 << (15*2));
+	GPIOB->MODER |=  (2 << (15*2));
+	GPIOB->AFR[1] &= ~(0xF << ((15-8)*4));
+	GPIOB->AFR[1] |=  (5 << ((15-8)*4));
+
+	GPIOB->OSPEEDR |= (3 << (15*2));*/
+
     //pc3
 	GPIOC->MODER &= ~(3 << (3*2));
 	GPIOC->MODER |=  (2 << (3*2));
@@ -70,8 +73,6 @@ void i2s2_dma_init(void)
 
     RCC->APB1ENR |= CLK_SPI2_EN;      // SPI2
     RCC->AHB1ENR |= CLK_DMA1_EN;      // DMA1
-    RCC->PLLCFGR &= ~(0x3F);
-    RCC->PLLCFGR |= 8; // PLLM = 8
     RCC->PLLI2SCFGR = (192 << 6) |   // PLLI2SN
                       (5   << 28);   // PLLI2SR
 
@@ -82,10 +83,14 @@ void i2s2_dma_init(void)
     		    (1 << 11) |    // I2S mode
     		    (0b10 << 8) |  // master receiver
     		    (0 << 4) |     // Philips
-    		    (0b10 << 1)|   // 32bit data length
+    		    (0b10 << 1)|   // 24bit data length (teb3a l inmp441)
+				(1<<0) |       //32bit channel length
                 (0 << 7);       // cpol low
-    SPI2->I2SPR = (12) |      // i2sDiv
-                  (1 << 8);   // ODD bit
+
+    SPI2->I2SPR = (8) |      // i2sDiv
+                  (1 << 8)|   // ODD bit
+				  (1<<9);
+
     SPI2->CR2 |= SPI_RxDMAEN;
     DMA1_Stream3->CR &= ~DMA_EN;
     while(DMA1_Stream3->CR & DMA_EN);
@@ -101,10 +106,13 @@ void i2s2_dma_init(void)
           DMA_HTIE |           // half transfer interrupt
 		  DMA_PL_HIGH  |           // high priority
 		  (2 << 11) |       // peripheral size 32bit
-		  (2 << 13) |     // memory size 32-bit
+		  (2 << 13) |     // memory size 32bit
           (0 << 6);                 // peripheral to memory
     NVIC_ENABLE_IRQ(DMA1_STREAM3_IRQn);
     SPI2->I2SCFGR |= I2S_ENABL;
+    DMA1->LIFCR |=
+        DMA_CHTIF3 |
+        DMA_CTCIF3;
     DMA1_Stream3->CR |= DMA_EN;
 
 }
@@ -123,4 +131,3 @@ void DMA1_Stream3_IRQHandler(void)
         full_complete = 1;
     }
 }
-

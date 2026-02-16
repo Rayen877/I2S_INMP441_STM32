@@ -10,7 +10,6 @@ extern int16_t audio_tx_buffer[AUDIO_BUFFER_SIZE/2];
 
 extern volatile uint8_t half_complete;
 extern volatile uint8_t full_complete;
-
 void i2s2_dma_init(void);
 
 #endif
